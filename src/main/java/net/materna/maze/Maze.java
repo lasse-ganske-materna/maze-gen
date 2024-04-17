@@ -18,19 +18,48 @@ public class Maze implements MazeI {
         this.dimX = dimX;
         this.dimY = dimY;
         tiles = new Tile[dimX][dimY];
+        
+        fillTile(0, 0);
+    }
 
-        for (int x = 0; x < dimX; x++) {
-            for (int y = 0; y < dimY; y++) {
-                Tile left = y > 0 ? tiles[x][y - 1] : Tile.EMPTY;
-                Tile top = x > 0 ? tiles[x - 1][y] : Tile.EMPTY;
-                Tile right = y < dimY - 1 ? tiles[x][y + 1] : Tile.EMPTY;
-                Tile bottom = x < dimX - 1 ? tiles[x + 1][y] : Tile.EMPTY;
+    private boolean fillTile(int x, int y) {
+        boolean reachedBorderLeft = y == 0;
+        boolean reachedBorderRight = y == dimY - 1;
+        boolean reachedBorderTop = x == 0;
+        boolean reachedBorderBottom = x == dimX - 1;
 
-                List<Tile> possibleTiles = TileHelper.getPossibleTiles(left, top, right, bottom);
-                Tile tile = possibleTiles.get(random.nextInt(possibleTiles.size()));
-                tiles[x][y] = tile;
+
+        Tile left = reachedBorderLeft ? Tile.EMPTY : tiles[x][y - 1];
+        Tile top = reachedBorderTop ? Tile.EMPTY : tiles[x - 1][y];
+        Tile right = reachedBorderRight ? Tile.EMPTY : tiles[x][y + 1];
+        Tile bottom = reachedBorderBottom ? Tile.EMPTY : tiles[x + 1][y];
+
+        List<Tile> possibleTiles = TileHelper.getPossibleTiles(left, top, right, bottom);
+        while (!possibleTiles.isEmpty()) {
+            Tile tile = possibleTiles.get(random.nextInt(possibleTiles.size()));
+            tiles[x][y] = tile;
+
+            boolean nextFillWasSuccessful;
+            if (reachedBorderBottom && reachedBorderRight) {
+                // Abbruchbedingung: Ende wurde erreicht
+                return true;
+            } else if (reachedBorderRight) {
+                // Rechter Rand wurde erreicht: Beginne bei nächster Zeile
+                nextFillWasSuccessful = fillTile(x + 1, 0);
+            } else {
+                //Weiter in der aktuellen Zeile
+                nextFillWasSuccessful = fillTile(x, y + 1);
+            }
+
+            if (!nextFillWasSuccessful) {
+                // Backtracking
+                possibleTiles.remove(tile);
+                tiles[x][y] = null;
+            } else {
+                return true;
             }
         }
+        return false;
     }
 
     @Override
