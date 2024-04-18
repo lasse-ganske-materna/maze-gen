@@ -1,22 +1,33 @@
 package net.materna.tile;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
-import static net.materna.tile.Tile.TILES_ALL;
-import static net.materna.tile.Tile.TILES_WITHOUT_BOTTOM_CONNECTION;
-import static net.materna.tile.Tile.TILES_WITHOUT_LEFT_CONNECTION;
-import static net.materna.tile.Tile.TILES_WITHOUT_RIGHT_CONNECTION;
-import static net.materna.tile.Tile.TILES_WITHOUT_TOP_CONNECTION;
-import static net.materna.tile.Tile.TILES_WITH_BOTTOM_CONNECTION;
-import static net.materna.tile.Tile.TILES_WITH_LEFT_CONNECTION;
-import static net.materna.tile.Tile.TILES_WITH_RIGHT_CONNECTION;
-import static net.materna.tile.Tile.TILES_WITH_TOP_CONNECTION;
+import java.util.stream.Collectors;
 
 public class TileHelper {
+    static final Set<Tile> TILES_ALL = new HashSet<>(List.of(Tile.values()));
+
+    static final Set<Tile> TILES_WITH_TOP_CONNECTION = getTilesWithConnection(Tile.TileConnection.TOP);
+    static final Set<Tile> TILES_WITH_BOTTOM_CONNECTION = getTilesWithConnection(Tile.TileConnection.BOTTOM);
+    static final Set<Tile> TILES_WITH_LEFT_CONNECTION = getTilesWithConnection(Tile.TileConnection.LEFT);
+    static final Set<Tile> TILES_WITH_RIGHT_CONNECTION = getTilesWithConnection(Tile.TileConnection.RIGHT);
+
+    static final Set<Tile> TILES_WITHOUT_TOP_CONNECTION = getTilesWithoutConnection(Tile.TileConnection.TOP);
+    static final Set<Tile> TILES_WITHOUT_BOTTOM_CONNECTION = getTilesWithoutConnection(Tile.TileConnection.BOTTOM);
+    static final Set<Tile> TILES_WITHOUT_LEFT_CONNECTION = getTilesWithoutConnection(Tile.TileConnection.LEFT);
+    static final Set<Tile> TILES_WITHOUT_RIGHT_CONNECTION = getTilesWithoutConnection(Tile.TileConnection.RIGHT);
+
+    private static Set<Tile> getTilesWithConnection(Tile.TileConnection tileConnection) {
+        return Arrays.stream(Tile.values()).filter(t -> t.hasConnection(tileConnection)).collect(Collectors.toUnmodifiableSet());
+    }
+
+    private static Set<Tile> getTilesWithoutConnection(Tile.TileConnection tileConnection) {
+        return Arrays.stream(Tile.values()).filter(t -> !t.hasConnection(tileConnection)).collect(Collectors.toUnmodifiableSet());
+    }
 
     public static List<Tile> getPossibleTiles(Tile left, Tile top, Tile right, Tile bottom) {
         Set<Tile> compatibilityLeft;
